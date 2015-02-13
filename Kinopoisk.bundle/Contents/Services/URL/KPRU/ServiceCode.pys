@@ -1,0 +1,28 @@
+def MediaObjectsForURL(url):
+    hash = url.replace('kpru://', '')
+    trailer_data = JSON.ObjectFromString(String.Decode(hash))
+
+    media = []
+    for trailer in trailer_data:
+        lnk = trailer['lnk']
+        part = PartObject(
+            key=lnk
+            , container=lnk.split('.')[-1]
+            , optimized_for_streaming=True
+            , duration=trailer['dr'])
+        part.streams.append(AudioStreamObject(index=trailer['streams'].index('audio'), codec=AudioCodec.AAC,
+                                              channels=trailer['audio']['channels'], language_code='ru'))
+        part.streams.append(VideoStreamObject(index=trailer['streams'].index('video'),
+                                              codec=trailer['video']['codec_fourcc'],
+                                              bitrate=trailer['bt'], width=trailer['video']['resolution_x'],
+                                              height=trailer['video']['resolution_y']))
+        media.append(MediaObject(parts=[part]
+                                 , container=lnk.split('.')[-1]
+                                 , video_codec=trailer['video']['codec_fourcc']
+                                 , audio_codec=AudioCodec.AAC
+                                 , duration=trailer['dr']
+                                 , bitrate=trailer['bt']
+                                 , width=trailer['video']['resolution_x']
+                                 , height=trailer['video']['resolution_y']))
+
+    return media
