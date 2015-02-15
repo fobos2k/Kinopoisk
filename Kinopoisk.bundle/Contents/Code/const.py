@@ -25,6 +25,10 @@ ARTWORK_ITEM_LIMIT = 2
 POSTER_SCORE_RATIO = .3
 BACKDROP_SCORE_RATIO = .3
 
+MPDB_ROOT = 'http://movieposterdb.plexapp.com'
+MPDB_JSON = '%s/1/request.json?imdb_id=%%s&api_key=p13x2&secret=%%s&width=720&thumb_width=100' % MPDB_ROOT
+MPDB_SECRET = 'e3c77873abc4866d9e28277a9114c60c'
+
 KP_TRAILERS_URL = 'kpru://%s'
 TYPE_MAP = {'primary_trailer': TrailerObject,
             'trailer': TrailerObject,

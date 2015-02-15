@@ -26,10 +26,10 @@ class QtParser():
         try:
             return urllib2.urlopen(obj, timeout=10)
         except urllib2.URLError, e:
-            #Log.Warn("Timeout for open trailer url")
+            Log.Warn("Timeout for open trailer url")
             print 'Timeout'
         except socket.timeout:
-            #Log.Warn("Timeout for open trailer url")
+            Log.Warn("Timeout for open trailer url")
             print 'Timeout'
         return None
 
@@ -38,6 +38,7 @@ class QtParser():
         self.url = link
         self.fp = self.urlopen(self.url)
         if self.fp:
+            self.info = {}
             self.info['filesize'] = self.fp.info().getheaders("Content-Length")[0]
             self.info['baseoffset'] = 0
             self.info['fileformat'] = 'mp4'
@@ -53,21 +54,30 @@ class QtParser():
         request.add_header("range", "bytes=%s-" % start)
         self.fp = self.urlopen(request)
 
+    def check_qt(self, data):
+        return re.search('^.{4}(cmov|free|ftyp|mdat|moov|pnot|skip|wide)', data)
+
     def analyze(self):
         bflag = True
+        bchecked = False
         offset = 0
         apendix = None
         while bflag and int(offset) < int(self.info['filesize']):
             atomheader = self.fread(8)
+            if not bchecked:
+                bchecked = True
+                if self.check_qt(atomheader) is None:
+                    break
+
             atomsize = self.unpack('I', atomheader[0:4])
             atomname = atomheader[4:8]
+
             if atomname[:2] == 'ee':
                 print 'correcting size'
                 atomname = atomheader[2:6]
                 atomsize = self.unpack('I', atomheader[0:2])
                 apendix = atomheader[6:8]
 
-            print atomname, atomsize
             self.info[atomname] = {}
             self.info[atomname]['name'] = atomname
             self.info[atomname]['size'] = atomsize
@@ -86,10 +96,12 @@ class QtParser():
                 else:
                     self.info[atomname] = self.parse_atom(atomname, atomsize, self.fread(atomsize - 8), offset)
             offset = offset + atomsize
-        self.info['bitrate'] = ((self.info['avdataend'] - self.info['avdataoffset']) * 8) / self.info[
-            'playtime_seconds']
-        self.info.pop('moov', None)
-        return self.info
+        if 'moov' in self.info:
+            self.info['bitrate'] = ((self.info['avdataend'] - self.info['avdataoffset']) * 8) / self.info[
+                'playtime_seconds']
+            self.info.pop('moov', None)
+            return self.info
+        return None
 
     def parse_atom(self, atomname, atomsize, atomdata, baseoffset):
         atoms = {
@@ -112,7 +124,7 @@ class QtParser():
             , '\x00\x00\x00\x05': self.parseatom_hex
 
         }
-        print atomname, baseoffset, atomsize
+
         atom_structure = {'name': atomname, 'size': atomsize, 'offset': baseoffset}
         if atomname in atoms:
             atoms[atomname](atom_structure, atomname, atomsize, atomdata, baseoffset)
@@ -311,3 +323,7 @@ class QtParser():
             , 40: '256-gray'
         }
         return colors[colorid] if colorid in colors else 'invalid'
+
+#t = QtParser()
+#t.openurl('http://kp.cdn.yandex.net/276762/kinopoisk.ru-Harry-Potter-the-Deathly-Hallows-Part-I-50698.mov')
+#print t.analyze()

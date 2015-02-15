@@ -2,6 +2,7 @@
   {"id":  "max_posters",  "label":  "Максимальное кол-во постеров: ", "type": "enum", "values": ["1","2","3","5"],  "default":  "2"},
   {"id":  "max_backdrops",  "label":  "Максимальное кол-во фонов: ", "type": "enum", "values": ["1","2","3","5"],  "default":  "2"},
   {"id":  "prefer_local_art", "label":  "Предпочитать локализованный арт", "type": "bool", "default": "true"},
-  {"id":  "load_extras",  "label":  "Загружать видеоматериалы (трейлеры, о фильме, интерфью и т.д.)", "type": "bool", "default":  "true"},
-  {"id":  "extras_source",  "label":  "Источник материалов:", "type": "enum", "values": ["Кинопоиск", "Plex IVA", "Все источники"], "default":  "Кинопоиск"}
+  {"id":  "load_extras",  "label":  "Загружать видеоматериалы (трейлеры, о фильме, интервью и т.д.)", "type": "bool", "default":  "true"},
+  {"id":  "extras_source",  "label":  "Источник материалов:", "type": "enum", "values": ["Кинопоиск", "Plex IVA", "Все источники"], "default":  "Кинопоиск"},
+  {"id":  "extras_seq",  "label":  "Последовательность загрузки материалов:", "type": "enum", "values": ["Кинопоиск, Plex IVA", "Plex IVA, Кинопоиск", "Все источники"], "default":  "Кинопоиск, Plex IVA"}
 ]

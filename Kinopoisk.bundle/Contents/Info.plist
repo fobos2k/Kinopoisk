@@ -14,5 +14,7 @@
 	<string>AlwaysOn</string>
 	<key>PlexPluginCodePolicy</key>
 	<string>Elevated</string>
+    <key>PlexPluginUpdateFeed</key>
+    <string>http://vanix.net/kpru/</string>
 </dict>
 </plist>

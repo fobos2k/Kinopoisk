@@ -32,3 +32,21 @@ class KinopoiskAgent(Agent.Movies):
 
         mdb = MovieDBMeta(media, lang)
         mdb.getdata(metadata, force)
+        
+        #extras
+        if Prefs['extras_source'] == u'Plex IVA':
+            mdb.extras(metadata)
+        elif Prefs['extras_source'] == u'Кинопоиск':
+            kp.extras(metadata)
+        elif Prefs['extras_source'] == u'Все источники':
+            if Prefs['extras_seq'] == u'Кинопоиск, Plex IVA':
+                kp.extras(metadata)
+                if len(metadata.extras) == 0:
+                    mdb.extras(metadata)
+            elif Prefs['extras_seq'] == u'Plex IVA, Кинопоиск':
+                mdb.extras(metadata)
+                if len(metadata.extras) == 0:
+                    kp.extras(metadata)
+            else:
+                kp.extras(metadata)
+                mdb.extras(metadata)

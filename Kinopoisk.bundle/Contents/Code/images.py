@@ -24,7 +24,7 @@ def handle_tmdb_images(metadata, tmdb_images_dict, lang, img_url):
                     tmdb_images_dict['posters'][i]['score'] = poster['score'] - 1
 
             for i, poster in enumerate(sorted(tmdb_images_dict['posters'], key=lambda k: k['score'], reverse=True)):
-                if i > const.ARTWORK_ITEM_LIMIT:
+                if i >= int(Prefs['max_posters']):
                     break
                 else:
                     poster_url = img_url + 'original' + poster['file_path']
@@ -63,7 +63,7 @@ def handle_tmdb_images(metadata, tmdb_images_dict, lang, img_url):
                     tmdb_images_dict['backdrops'][i]['score'] = float(backdrop['score']) - 1
 
             for i, backdrop in enumerate(sorted(tmdb_images_dict['backdrops'], key=lambda k: k['score'], reverse=True)):
-                if i > const.ARTWORK_ITEM_LIMIT:
+                if i >= int(Prefs['max_backdrops']):
                     break
                 else:
                     backdrop_url = img_url + 'original' + backdrop['file_path']
@@ -78,6 +78,8 @@ def handle_tmdb_images(metadata, tmdb_images_dict, lang, img_url):
 
         metadata.art.validate_keys(valid_names)
 
+def handle_mpdb_images(metadata, imdb, lang):
+    pass
 
 def handle_kpru_images():
     # not implemented yet
