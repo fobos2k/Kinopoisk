@@ -252,7 +252,9 @@ class MovieDBMeta(FilmMeta):
             results.append({'id': movie['id'], 'title': movie['title'], 'score': score})
 
         results = sorted(results, key=lambda item: item['score'], reverse=True)
-        return results[0]
+        if len(results) > 0:
+            return results[0]
+        return None
 
     def search(self, metadata):
         result = {}
