@@ -76,8 +76,8 @@ def handle_iva_trailers(metadata, imdbid, lang):
             # Include extras in section language...
             if spoken_lang == lang:
 
-                # ...if there are no subs.
-                if subtitle_lang_code == -1:
+                # ...if there are no subs or english.
+                if subtitle_lang_code in {-1, Locale.Language.English}:
                     include = True
 
             # Include foreign language extras if they have subs in the section language.
@@ -118,7 +118,7 @@ def handle_iva_trailers(metadata, imdbid, lang):
         extras.sort(key=lambda e: const.TYPE_ORDER.index(e['type']))
 
         # If our primary trailer is in English but the library language is something else, see if we can do better.
-        if lang != Locale.Language.English and extras[0]['lang'] == Locale.Language.English:
+        if len(extras) > 0 and lang != Locale.Language.English and extras[0]['lang'] == Locale.Language.English:
             lang_matches = [t for t in xml.xpath('//extra') if t.get('type') == 'trailer' and const.IVA_LANGUAGES.get(int(t.get('subtitle_lang_code') or -1)) == lang]
             lang_matches += [t for t in xml.xpath('//extra') if t.get('type') == 'trailer' and const.IVA_LANGUAGES.get(int(t.get('lang_code') or -1)) == lang]
             if len(lang_matches) > 0:
