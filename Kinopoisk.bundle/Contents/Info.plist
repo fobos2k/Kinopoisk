@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CFBundleIdentifier</key>
-	<string>com.plexapp.agents.kinopoisk</string>
-	<key>PlexAgentAttributionText</key>
-	<string>Агент для получения информации о медиа файлах с Русского сайта</string>
-	<key>PlexFrameworkVersion</key>
-	<string>2</string>
-	<key>PlexPluginClass</key>
-	<string>Agent</string>
-	<key>PlexPluginMode</key>
-	<string>AlwaysOn</string>
-	<key>PlexPluginCodePolicy</key>
-	<string>Elevated</string>
-    <key>PlexPluginUpdateFeed</key>
-    <string>http://vanix.net/kpru/</string>
-</dict>
+    <dict>
+        <key>CFBundleIdentifier</key>
+        <string>com.plexapp.agents.kinopoisk</string>
+        <key>PlexAgentAttributionText</key>
+        <string>
+            Агент для получения информации о медиа файлах с Русского сайта
+            &lt;a href=&quot;http://www.kinopoisk.ru/&quot;&gt;КиноПоиск&lt;/a&gt;,
+            использование информации которого защищается
+            &lt;a href=&quot;http://www.kinopoisk.ru/level/76/doc/usage/&quot;&gt;пользовательским соглашением&lt;/a&gt;.
+            &lt;br&gt; &lt;br&gt;
+            Для желающих посодействовать автору в разработке плагина -
+            &lt;a href=&quot;https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=JZNYHNFYSALCC&amp;lc=US&amp;item_name=Plex%20Kinopoisk%20Bundle&amp;currency_code=RUB&amp;bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted&quot;&gt;страничка на PayPal&lt;/a&gt;.
+        </string>
+        <key>PlexFrameworkVersion</key>
+        <string>2</string>
+        <key>PlexPluginClass</key>
+        <string>Agent</string>
+        <key>PlexPluginMode</key>
+        <string>AlwaysOn</string>
+        <key>PlexPluginCodePolicy</key>
+        <string>Elevated</string>
+        <key>PlexPluginUpdateFeed</key>
+        <string>https://amirotin.github.io/kinopoisk/</string>
+    </dict>
 </plist>

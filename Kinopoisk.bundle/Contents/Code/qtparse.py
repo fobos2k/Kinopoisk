@@ -323,7 +323,3 @@ class QtParser():
             , 40: '256-gray'
         }
         return colors[colorid] if colorid in colors else 'invalid'
-
-#t = QtParser()
-#t.openurl('http://kp.cdn.yandex.net/276762/kinopoisk.ru-Harry-Potter-the-Deathly-Hallows-Part-I-50698.mov')
-#print t.analyze()

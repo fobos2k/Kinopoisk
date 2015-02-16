@@ -4,10 +4,11 @@ KP_KEY = 'samuraivbolote'
 RE_YEAR = Regex('([1-2][0-9]{3})')
 
 KP_MOVIE_SEARCH = '%s/getKPLiveSearch?keyword=%%s' % KP_BASE_URL
-KP_MOVIE = '%s/getKPFilmDetailView?filmID=%%s' % KP_BASE_URL
+KP_MOVIE = '%s/getKPFilmDetailView?filmID=%%s&still_limit=50&sr=1' % KP_BASE_URL
 KP_MOVIE_STAFF = '%s/getStaffList?type=all&filmID=%%s' % KP_BASE_URL
 KP_MOVIE_IMAGES = '%s/getGallery?filmID=%%s' % KP_BASE_URL
 KP_TRAILERS = 'http://www.kinopoisk.ru/film/%s/video/type/1/'
+
 
 SCORE_PENALTY_ITEM_ORDER = 1
 SCORE_PENALTY_YEAR = 20

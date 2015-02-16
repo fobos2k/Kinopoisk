@@ -81,6 +81,5 @@ def handle_tmdb_images(metadata, tmdb_images_dict, lang, img_url):
 def handle_mpdb_images(metadata, imdb, lang):
     pass
 
-def handle_kpru_images():
-    # not implemented yet
+def handle_kpru_images(metadata, img_dict):
     pass

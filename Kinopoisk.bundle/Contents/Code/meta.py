@@ -81,6 +81,9 @@ class KinopoiskMeta(FilmMeta):
     def getpeople(self, film_id):
         return self.makerequest(url=const.KP_MOVIE_STAFF % film_id)
 
+    def getimages(self, film_id):
+        return self.makerequest(url=const.KP_MOVIE_IMAGES % film_id)
+
     def external_search(self, results, manual=False):
         title = None
         year = None
@@ -144,7 +147,7 @@ class KinopoiskMeta(FilmMeta):
         if not isinstance(film_dict, dict):
             return None
         # title
-        metadata.title = film_dict['nameRU'].replace(u'(видео)', '')
+        metadata.title = film_dict['nameRU'].replace(u'(видео)', '').replace(u'(ТВ)', '')
         if 'nameEN' in film_dict and film_dict['nameEN'] != film_dict['nameRU']:
             metadata.original_title = film_dict['nameEN']
         metadata.tagline = film_dict.get('slogan')
@@ -203,12 +206,12 @@ class KinopoiskMeta(FilmMeta):
                         metadata.writers.add(pname)
                     elif prole == 'producer':
                         metadata.producers.add(pname)
-            
+
     def extras(self, metadata):
         find_extras = FilmMeta.extras(self, metadata)
 
         if find_extras and Prefs['load_extras'] and Prefs['extras_source'] in {u'Кинопоиск', u'Все источники'}:
-            trailers.handle_kpru_trailers(const.KP_TRAILERS % metadata.id, metadata)        
+            trailers.handle_kpru_trailers(const.KP_TRAILERS % metadata.id, metadata)
 
 
 class MovieDBMeta(FilmMeta):
