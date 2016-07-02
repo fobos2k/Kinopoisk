@@ -180,7 +180,8 @@ class KinopoiskMeta(FilmMeta):
 
         metadata.originally_available_at = datetime.datetime.strptime(
             film_dict['rentData'].get('premiereWorld') or
-            film_dict['rentData'].get('premiereRU'),
+            film_dict['rentData'].get('premiereRU') or
+            film_dict['rentData'].get('premiereDVD'),
             '%d.%m.%Y').date() if 'rentData' in film_dict else None
         summary_add = ''
         if 'ratingData' in film_dict:
