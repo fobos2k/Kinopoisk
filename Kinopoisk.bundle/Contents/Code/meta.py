@@ -31,29 +31,33 @@ class FilmMeta:
     def makerequest(self, url, headerlist=None, cache_time=CACHE_1MONTH):
         json_data = None
         try:
-            json_data = JSON.ObjectFromURL(url, sleep=2.0, headers=headerlist, cacheTime=cache_time)
+            json_data = JSON.ObjectFromURL(url,
+                                           sleep=2.0,
+                                           headers=headerlist,
+                                           cacheTime=cache_time)
             return json_data['data'] if 'data' in json_data else json_data
         except:
             pass
 
         return json_data
-        
+
     def extras(self, metadata):
         find_extras = False
         # Extras.
         try:
-            # Do a quick check to make sure we've got the types available in this framework version, and that the server
+            # Do a quick check to make sure we've got the types available
+            # in this framework version, and that the server
             # is new enough to support the IVA endpoints.
             t = InterviewObject()
-            if Util.VersionAtLeast(Platform.ServerVersion, 0,9,9,13):
+            if Util.VersionAtLeast(Platform.ServerVersion, 0, 9, 9, 13):
                 find_extras = True
             else:
                 find_extras = False
                 Log('Not adding extras: Server v0.9.9.13+ required')
-        except NameError, e:
+        except NameError:
             Log('Not adding extras: Framework v2.5.0+ required')
             find_extras = False
-            
+
         return find_extras
 
 
@@ -69,11 +73,15 @@ class KinopoiskMeta(FilmMeta):
             'Android-Api-Version': 19,
             'clientDate': Datetime.Now().strftime("%H:%M %d.%m.%Y")
         }
-        return FilmMeta.makerequest(self, url + '&key=' + Hash.MD5(url[len(const.KP_BASE_URL) + 1:] + const.KP_KEY),
-                                    headerlist)
+        return FilmMeta.makerequest(
+            self, url + '&key=' +
+            Hash.MD5(url[len(const.KP_BASE_URL) + 1:] + const.KP_KEY),
+            headerlist)
 
     def searchfilm(self, media_name):
-        return self.makerequest(url=const.KP_MOVIE_SEARCH % String.Quote(media_name, usePlus=False))
+        return self.makerequest(url=const.KP_MOVIE_SEARCH %
+                                String.Quote(media_name,
+                                             usePlus=False))
 
     def getfilmdata(self, film_id):
         return self.makerequest(url=const.KP_MOVIE % film_id)
@@ -88,7 +96,8 @@ class KinopoiskMeta(FilmMeta):
         title = None
         year = None
         theguid = self.media.guid
-        kp_search = re.search(r'^(com.plexapp.agents.kinopoiskru://)([\d]+)\?.+', theguid)
+        kp_search = re.search(
+            r'^(com.plexapp.agents.kinopoiskru://)([\d]+)\?.+', theguid)
 
         if kp_search and kp_search.group(1) and kp_search.group(2):
             theguid = kp_search.group(2)
@@ -102,7 +111,11 @@ class KinopoiskMeta(FilmMeta):
             pass
 
         if title is not None:
-            results.Append(MetadataSearchResult(id=theguid, name=title, year=year, lang=self.lang, score=100))
+            results.Append(MetadataSearchResult(id=theguid,
+                                                name=title,
+                                                year=year,
+                                                lang=self.lang,
+                                                score=100))
             return False
         return True
 
@@ -116,7 +129,8 @@ class KinopoiskMeta(FilmMeta):
             if yearmatch:
                 yearstr = yearmatch.group(1)
                 yearint = int(yearstr)
-                if 1900 < yearint < (datetime.date.today().year + 1) and yearstr != media_name:
+                if 1900 < yearint < (datetime.date.today().year + 1
+                                     ) and yearstr != media_name:
                     self.media.year = yearint
                     media_name = media_name.replace(yearstr, '')
 
@@ -128,17 +142,16 @@ class KinopoiskMeta(FilmMeta):
         itemindex = -1
         if 'items' in json_obj:
             for entry in json_obj['items']:
-                if {'id', 'nameRU', 'year'} <= set(entry) and entry['type'] == 'KPFilmObject' and '-' not in entry['year']:
+                if {'id', 'nameRU', 'year'} <= set(entry) and entry[
+                        'type'] == 'KPFilmObject' and '-' not in entry['year']:
                     itemindex += 1
-                    results.Append(
-                        MetadataSearchResult(
-                            id=entry['id'],
-                            name=entry['nameRU'],
-                            year=str(entry['year']),
-                            lang=self.lang,
-                            score=scoring.scoreTitle(entry, self.media, media_name, itemindex)
-                        )
-                    )
+                    results.Append(MetadataSearchResult(
+                        id=entry['id'],
+                        name=entry['nameRU'],
+                        year=str(entry['year']),
+                        lang=self.lang,
+                        score=scoring.scoreTitle(entry, self.media, media_name,
+                                                 itemindex)))
 
         results.Sort('score', descending=True)
 
@@ -147,8 +160,10 @@ class KinopoiskMeta(FilmMeta):
         if not isinstance(film_dict, dict):
             return None
         # title
-        metadata.title = film_dict['nameRU'].replace(u'(видео)', '').replace(u'(ТВ)', '')
-        if 'nameEN' in film_dict and film_dict['nameEN'] != film_dict['nameRU']:
+        metadata.title = film_dict['nameRU'].replace(u'(видео)', '').replace(
+            u'(ТВ)', '')
+        if 'nameEN' in film_dict and film_dict['nameEN'] != film_dict[
+                'nameRU']:
             metadata.original_title = film_dict['nameEN']
         metadata.tagline = film_dict.get('slogan')
         metadata.countries.clear()
@@ -160,26 +175,32 @@ class KinopoiskMeta(FilmMeta):
             metadata.genres.add(genre.strip().title())
         metadata.year = int(film_dict.get('year') or 0)
         metadata.content_rating = film_dict.get('ratingMPAA')
-        metadata.content_rating_age = int(film_dict.get('ratingAgeLimits') or 0)
+        metadata.content_rating_age = int(film_dict.get('ratingAgeLimits') or
+                                          0)
 
         metadata.originally_available_at = datetime.datetime.strptime(
-            film_dict['rentData'].get('premiereWorld') or film_dict['rentData'].get('premiereRU'), '%d.%m.%Y'
-        ).date() if 'rentData' in film_dict else None
+            film_dict['rentData'].get('premiereWorld') or
+            film_dict['rentData'].get('premiereRU'),
+            '%d.%m.%Y').date() if 'rentData' in film_dict else None
         summary_add = ''
         if 'ratingData' in film_dict:
             if 'rating' in film_dict['ratingData']:
                 metadata.rating = float(film_dict['ratingData'].get('rating'))
-            summary_add = u'КиноПоиск: ' + film_dict['ratingData'].get('rating').__str__()
+            summary_add = u'КиноПоиск: ' + film_dict['ratingData'].get(
+                'rating').__str__()
             if 'ratingVoteCount' in film_dict['ratingData']:
-                summary_add += ' (' + film_dict['ratingData'].get('ratingVoteCount').__str__() + ')'
+                summary_add += ' (' + film_dict['ratingData'].get(
+                    'ratingVoteCount').__str__() + ')'
             summary_add += '. '
 
             if 'ratingIMDb' in film_dict['ratingData']:
-                summary_add += u'IMDb: ' + film_dict['ratingData'].get('ratingIMDb').__str__()
+                summary_add += u'IMDb: ' + film_dict['ratingData'].get(
+                    'ratingIMDb').__str__()
             if 'ratingIMDbVoteCount' in film_dict['ratingData']:
-                summary_add += ' (' + film_dict['ratingData'].get('ratingIMDbVoteCount').__str__() + ')'
+                summary_add += ' (' + film_dict['ratingData'].get(
+                    'ratingIMDbVoteCount').__str__() + ')'
             summary_add += '. '
-        
+
         if summary_add != '':
             summary_add += '\n'
         metadata.summary = summary_add + film_dict.get('description', '')
@@ -189,60 +210,83 @@ class KinopoiskMeta(FilmMeta):
         metadata.writers.clear()
         metadata.producers.clear()
         metadata.roles.clear()
+
+        Log('=========== Start extracting of meta data... ===========')
         for staff_type in staff_dict['creators']:
             for staff in staff_type:
+                Log("Staff: " + str(staff))
                 prole = staff.get('professionKey')
-                pname = staff.get('nameRU') if len(staff.get('nameRU')) > 0 else staff.get('nameEN')
+                Log("PRole: " + str(prole))
+                pname = staff.get('nameRU') if len(staff.get(
+                    'nameRU')) > 0 else staff.get('nameEN')
+                Log("PName: " + str(pname))
                 if pname:
                     if prole == 'actor':
-                        role = metadata.roles.new()
-                        role.actor = pname
+                        meta_role = metadata.roles.new()
+                        meta_role.name = pname
                         if 'posterURL' in staff:
-                            role.photo = 'http://win8.st.kp.yandex.net/actor/' + staff['id'][0] + '/' + staff['id'] + '.jpg'
-                        role.role = staff.get('description')
+                            meta_role.photo = 'http://win8.st.kp.yandex.net/actor/' + (
+                               staff['id'][0] + '/' + staff['id'] + '.jpg')
+                        meta_role.role = staff.get('description')
                     elif prole == 'director':
-                        metadata.directors.add(pname)
+                        meta_director = metadata.directors.new()
+                        meta_director.name = pname
                     elif prole == 'writer':
-                        metadata.writers.add(pname)
+                        meta_writer = metadata.writers.new()
+                        meta_writer.name = pname
                     elif prole == 'producer':
-                        metadata.producers.add(pname)
-
+                        meta_producer = metadata.producers.new()
+                        meta_producer.name = pname
+        
     def extras(self, metadata):
         find_extras = FilmMeta.extras(self, metadata)
 
-        if find_extras and Prefs['load_extras'] and Prefs['extras_source'] in {u'Кинопоиск', u'Все источники'}:
-            trailers.handle_kpru_trailers(const.KP_TRAILERS % metadata.id, metadata)
+        if find_extras and Prefs['load_extras'] and Prefs[
+                'extras_source'] in {u'Кинопоиск', u'Все источники'}:
+            trailers.handle_kpru_trailers(const.KP_TRAILERS % metadata.id,
+                                          metadata)
 
 
 class MovieDBMeta(FilmMeta):
     def makerequest(self, url, cache_time=CACHE_1MONTH):
         json_data = None
         try:
-            json_data = JSON.ObjectFromURL(url, sleep=2.0, headers={'Accept': 'application/json'}, cacheTime=cache_time)
+            json_data = JSON.ObjectFromURL(
+                url,
+                sleep=2.0,
+                headers={'Accept': 'application/json'},
+                cacheTime=cache_time)
         except:
             Log('Error fetching JSON from The Movie Database.')
+
         return json_data
 
     def __init__(self, media, lang):
-        self.config_dict = self.makerequest(url=const.TMDB_CONFIG, cache_time=CACHE_1WEEK * 2)
+        self.config_dict = self.makerequest(url=const.TMDB_CONFIG,
+                                            cache_time=CACHE_1WEEK * 2)
         FilmMeta.__init__(self, media, lang)
-        
+
     def search_results(self, tmdb_dict, metadata):
         results = []
-        for i, movie in enumerate(sorted(tmdb_dict['results'], key=lambda k: k['popularity'], reverse=True)):
+        for i, movie in enumerate(sorted(tmdb_dict['results'],
+                                         key=lambda k: k['popularity'],
+                                         reverse=True)):
             score = 100
 
             original_title_penalty = 100
             if metadata.original_title and 'original_title' in movie:
-                original_title_penalty = scoring.computeTitlePenalty(metadata.original_title,
-                                                                     movie['original_title'])
-            title_penalty = scoring.computeTitlePenalty(metadata.title, movie['title'])
+                original_title_penalty = scoring.computeTitlePenalty(
+                    metadata.original_title, movie['original_title'])
+            title_penalty = scoring.computeTitlePenalty(metadata.title,
+                                                        movie['title'])
             title_penalty = min(title_penalty, original_title_penalty)
             score = score - title_penalty
 
-            if metadata.originally_available_at and 'release_date' in movie and len(movie['release_date']) > 0:
+            if metadata.originally_available_at and 'release_date' in movie and len(
+                    movie['release_date']) > 0:
                 release_date = Datetime.ParseDate(movie['release_date']).date()
-                days_diff = abs((metadata.originally_available_at - release_date).days)
+                days_diff = abs((metadata.originally_available_at -
+                                 release_date).days)
                 if days_diff == 0:
                     release_penalty = 0
                 elif days_diff <= 10:
@@ -250,9 +294,12 @@ class MovieDBMeta(FilmMeta):
                 else:
                     release_penalty = 10
                 score = score - release_penalty
-                score = score - abs(metadata.originally_available_at.year-release_date.year)
+                score = score - abs(metadata.originally_available_at.year -
+                                    release_date.year)
 
-            results.append({'id': movie['id'], 'title': movie['title'], 'score': score})
+            results.append({'id': movie['id'],
+                            'title': movie['title'],
+                            'score': score})
 
         results = sorted(results, key=lambda item: item['score'], reverse=True)
         if len(results) > 0:
@@ -262,43 +309,27 @@ class MovieDBMeta(FilmMeta):
     def search(self, metadata):
         result = {}
         # search by title and year
-        tmdb_dict = self.makerequest(
-            url=const.TMDB_MOVIE_SEARCH % (
-                String.Quote(metadata.title.encode('utf-8'))
-                , metadata.year
-                , self.lang
-                , False
-            )
-        )
+        tmdb_dict = self.makerequest(url=const.TMDB_MOVIE_SEARCH % (
+            String.Quote(metadata.title.encode('utf-8')), metadata.year,
+            self.lang, False))
 
         # search by title
         if tmdb_dict is None or len(tmdb_dict['results']) == 0:
-            tmdb_dict = self.makerequest(
-                url=const.TMDB_MOVIE_SEARCH % (
-                    String.Quote(metadata.title.encode('utf-8'))
-                    , ''
-                    , self.lang
-                    , False
-                )
-            )
-            
+            tmdb_dict = self.makerequest(url=const.TMDB_MOVIE_SEARCH % (
+                String.Quote(metadata.title.encode('utf-8')), '', self.lang,
+                False))
+
         if isinstance(tmdb_dict, dict) and 'results' in tmdb_dict:
             result = self.search_results(tmdb_dict, metadata)
-            
-        # search by original title
-        if metadata.original_title is not None and metadata.title != metadata.original_title \
-                and (result is None or result['score'] < 85):
-            tmdb_dict = self.makerequest(
-                url=const.TMDB_MOVIE_SEARCH % (
-                    String.Quote(metadata.original_title.encode('utf-8'))
-                    , ''
-                    , self.lang
-                    , False
-                )
-            )
-            
-            result = self.search_results(tmdb_dict, metadata)
 
+            # search by original title
+        if metadata.original_title is not None and \
+           metadata.title != metadata.original_title and (result is None or result['score'] < 85):
+            tmdb_dict = self.makerequest(url=const.TMDB_MOVIE_SEARCH % (
+                String.Quote(metadata.original_title.encode('utf-8')), '',
+                self.lang, False))
+
+            result = self.search_results(tmdb_dict, metadata)
 
         if result is not None and result['score'] > 85:
             return result['id']
@@ -307,28 +338,36 @@ class MovieDBMeta(FilmMeta):
     def getdata(self, metadata, force):
         tmdbid = self.search(metadata)
         if tmdbid:
-            tmdb_dict = self.makerequest(url=const.TMDB_MOVIE % (tmdbid, self.lang))
+            tmdb_dict = self.makerequest(url=const.TMDB_MOVIE %
+                                         (tmdbid, self.lang))
 
             if not isinstance(tmdb_dict, dict) \
                     or 'overview' not in tmdb_dict \
                     or tmdb_dict['overview'] is None \
                     or tmdb_dict['overview'] == "":
-                # Retry the query with no language specified if we didn't get anything from the initial request.
-                tmdb_dict = self.makerequest(url=const.TMDB_MOVIE % (tmdbid, ''))
+                # Retry the query with no language specified if
+                # we didn't get anything from the initial request.
+                tmdb_dict = self.makerequest(url=const.TMDB_MOVIE %
+                                             (tmdbid, ''))
 
             self.imdbid = tmdb_dict['imdb_id']
 
-            if 'production_companies' in tmdb_dict and len(tmdb_dict['production_companies']) > 0:
+            if 'production_companies' in tmdb_dict and len(tmdb_dict[
+                    'production_companies']) > 0:
                 metadata.studio = tmdb_dict['production_companies'][0]['name']
-            
+
             # we have no localized images
             if len(tmdb_dict['images']['posters']) == 0:
-                tmdb_dict['images'] = self.makerequest(url=const.TMDB_MOVIE_IMAGES % tmdbid)
-                
-            images.handle_tmdb_images(metadata, tmdb_dict['images'], self.lang, self.config_dict['images']['base_url'])
-                
+                tmdb_dict['images'] = self.makerequest(
+                    url=const.TMDB_MOVIE_IMAGES % tmdbid)
+
+            images.handle_tmdb_images(metadata, tmdb_dict['images'], self.lang,
+                                      self.config_dict['images']['base_url'])
+
     def extras(self, metadata):
         find_extras = FilmMeta.extras(self, metadata)
 
-        if self.imdbid is not None and find_extras and Prefs['load_extras'] and Prefs['extras_source'] in {u'Plex IVA', u'Все источники'}:
+        if self.imdbid is not None and find_extras and Prefs[
+                'load_extras'] and Prefs[
+                    'extras_source'] in {u'Plex IVA', u'Все источники'}:
             trailers.handle_iva_trailers(metadata, self.imdbid, self.lang)
