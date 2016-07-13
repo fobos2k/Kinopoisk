@@ -31,6 +31,8 @@ class FilmMeta:
     def makerequest(self, url, headerlist=None, cache_time=CACHE_1MONTH):
         json_data = None
         try:
+            Log.Debug(url)
+            Log.Debug(headerlist)
             json_data = JSON.ObjectFromURL(url,
                                            sleep=2.0,
                                            headers=headerlist,
@@ -157,6 +159,11 @@ class KinopoiskMeta(FilmMeta):
 
     def getdata(self, metadata, force):
         film_dict = self.getfilmdata(metadata.id)
+        Log.Debug("film_dict")
+        for key, value in film_dict.iteritems():
+            Log.Debug(key)
+            Log.Debug(value)
+        Log.Debug("======= end film_dict =======")
         if not isinstance(film_dict, dict):
             return None
         # title
@@ -215,12 +222,12 @@ class KinopoiskMeta(FilmMeta):
         Log('=========== Start extracting of meta data... ===========')
         for staff_type in staff_dict['creators']:
             for staff in staff_type:
-                Log("Staff: " + str(staff))
+                Log.Debug("Staff: " + str(staff))
                 prole = staff.get('professionKey')
-                Log("PRole: " + str(prole))
+                Log.Debug("PRole: " + str(prole))
                 pname = staff.get('nameRU') if len(staff.get(
                     'nameRU')) > 0 else staff.get('nameEN')
-                Log("PName: " + str(pname))
+                Log.Debug("PName: " + str(pname))
                 if pname:
                     if prole == 'actor':
                         meta_role = metadata.roles.new()
@@ -238,6 +245,15 @@ class KinopoiskMeta(FilmMeta):
                     elif prole == 'producer':
                         meta_producer = metadata.producers.new()
                         meta_producer.name = pname
+
+        Log("=========== Importing images... ===========")
+        film_images = self.getimages(metadata.id)
+        for key, value in film_images.iteritems():
+            Log.Debug(key)
+            Log.Debug(value)
+        metadata['posters'] = dict()
+        poster_url = 
+            
         
     def extras(self, metadata):
         find_extras = FilmMeta.extras(self, metadata)
